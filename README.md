@@ -1,94 +1,60 @@
-# Drosera Trap Foundry Template
+# Gas Price Trap
 
-This repo is for quickly bootstrapping a new Drosera project. It includes instructions for creating your first trap, deploying it to the Drosera network, and updating it on the fly.
+A simple trap that blocks transactions when gas prices go crazy high. Think of it as a shield against those nasty MEV attacks and gas price spikes that can drain your wallet.
 
-[![view - Documentation](https://img.shields.io/badge/view-Documentation-blue?style=for-the-badge)](https://dev.drosera.io "Project documentation")
-[![Twitter](https://img.shields.io/twitter/follow/DroseraNetwork?style=for-the-badge)](https://x.com/DroseraNetwork)
+## What it does
 
-## Configure dev environment
+GasGuard is a smart contract that:
+- Keeps an eye on gas prices for every transaction
+- Blocks transactions if gas price > 30 gwei (you can change this)
+- Lets the owner update the gas limit whenever needed
+- Shouts "gas too high: trap active" when things get expensive
+
+## Quick Start (Local Testing)
 
 ```bash
+# Install Foundry
 curl -L https://foundry.paradigm.xyz | bash
 foundryup
 
-# The trap-foundry-template utilizes node modules for dependency management
-# install Bun (optional)
-curl -fsSL https://bun.sh/install | bash
-
-# install node modules
+# Clone and setup
+git clone <your-repo>
+cd gas-price-trap
 bun install
 
-# install vscode (optional)
-# - add solidity extension JuanBlanco.solidity
-
-# install drosera-cli
-curl -L https://app.drosera.io/install | bash
-droseraup
-```
-
-open the VScode preferences and Select `Soldity: Change workpace compiler version (Remote)`
-
-Select version `0.8.12`
-
-## Quick Start
-
-### Hello World Trap
-
-The drosera.toml file is configured to deploy a simple "Hello, World!" trap. Ensure the drosera.toml file is set to the following configuration:
-
-```toml
-response_contract = "0xdA890040Af0533D98B9F5f8FE3537720ABf83B0C"
-response_function = "helloworld(string)"
-```
-
-To deploy the trap, run the following commands:
-
-```bash
-# Compile the Trap
+# Compile and test locally
 forge build
-
-# Deploy the Trap
-DROSERA_PRIVATE_KEY=0x.. drosera apply
+forge test -vv
 ```
-
-After successfully deploying the trap, the CLI will add an `address` field to the `drosera.toml` file.
-
-Congratulations! You have successfully deployed your first trap!
-
-### Response Trap
-
-You can then update the trap by changing its logic and recompling it or changing the path field in the `drosera.toml` file to point to the Response Trap.
-
-The Response Trap is designed to trigger a response at a specific block number. To test the Response Trap, pick a future block number and update the Response Trap.
-Specify a response contract address and function signature in the drosera.toml file to the following:
-
-```toml
-response_contract = "0x183D78491555cb69B68d2354F7373cc2632508C7"
-response_function = "responseCallback(uint256)"
-```
-
-Finally, deploy the Response Trap by running the following commands:
-
-```bash
-# Compile the Trap
-forge build
-
-# Deploy the Trap
-DROSERA_PRIVATE_KEY=0x.. drosera apply
-```
-
-> Note: The `DROSERA_PRIVATE_KEY` environment variable can be used to deploy traps. You can also set it in the drosera.toml file as `private_key = "0x.."`.
-
-
-### Transfer Event Trap
-The TransferEventTrap is an example of how a Trap can parse event logs from a block and respond to a specific ERC-20 token transfer events.
-
-To deploy the Transfer Event Trap, uncomment the `transfer_event_trap` section in the `drosera.toml` file. Add the token address to the `tokenAddress` constant in the `TransferEventTrap.sol` file and then deploy the trap.
 
 ## Testing
 
-Example tests are included in the `tests` directory. They simulate how Drosera Operators execute traps and determine if a response should be triggered. To run the tests, execute the following command:
-
 ```bash
-forge test
+# Run tests to see gas trap in action
+forge test -vv
 ```
+
+Tests show:
+- Gas price > 30 gwei → blocked ❌
+- Gas price ≤ 30 gwei → allowed ✅
+- Only owner can update limits
+
+## Configuration
+
+The `drosera.toml` file is already set up with:
+- Response contract: `0x66847043dA36DE12D536054A11F3364E386bb7bc`
+- Function: `setMaxGasWei(uint256)`
+- Cooldown: 15 blocks
+- Sample size: 1 block
+
+## Main Functions
+
+- `setMaxGasWei(uint256)`: Update gas price limit (owner only)
+- `protectedAction()`: Demo function that gets blocked when gas is high
+- `maxGasWei`: Variable that stores the current gas price limit
+
+## Notes
+
+- Default gas price limit: 30 gwei (30,000,000,000 wei)
+- Trap kicks in when gas price exceeds the set limit
+- Perfect for protecting against MEV attacks and gas price spikes

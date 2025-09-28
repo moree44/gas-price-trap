@@ -1,7 +1,12 @@
 {
-  "name": "trap-foundry-template",
+  "name": "@trap-examples/gas-price-trap",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test -vv"
+  },
   "devDependencies": {
-    "@types/bun": "latest",
     "forge-std": "github:foundry-rs/forge-std#v1.8.1"
   },
   "dependencies": {

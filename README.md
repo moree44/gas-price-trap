@@ -1,4 +1,4 @@
-# Gas Price Trap
+# GasGuardTrap
 
 A simple trap that blocks transactions when gas prices go crazy high. Think of it as a shield against those nasty MEV attacks and gas price spikes that can drain your wallet.
 
